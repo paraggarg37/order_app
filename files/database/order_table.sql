@@ -1,0 +1,16 @@
+DROP SCHEMA IF EXISTS `logistics` ;
+CREATE SCHEMA if not exists `logistics`;
+USE `logistics`;
+
+CREATE TABLE IF NOT EXISTS `orders`(
+  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `origin_lat` VARCHAR(50) NOT NULL,
+  `origin_lng` VARCHAR(50)  NOT NULL,
+  `destination_lat` VARCHAR(50) NOT NULL,
+  `destination_lng` VARCHAR(50)  NOT NULL ,
+  `distance` int NOT NULL,
+  `status` enum('UNASSIGNED','TAKEN') NOT NULL  DEFAULT 'UNASSIGNED',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`)
+);
