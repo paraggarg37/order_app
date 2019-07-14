@@ -1,16 +1,15 @@
 package distancematrix
 
 import (
-	"testing"
-	"github.com/stretchr/testify/mock"
-	"googlemaps.github.io/maps"
 	"context"
 	"errors"
 	"flag"
+	"github.com/stretchr/testify/mock"
+	"googlemaps.github.io/maps"
+	"testing"
 )
 
 var integration = flag.Bool("integration", false, "run database integration tests")
-
 
 type DistanceCalculatorMock struct {
 	mock.Mock

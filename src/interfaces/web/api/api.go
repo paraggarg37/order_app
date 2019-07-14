@@ -5,10 +5,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/paraggarg37/order_app/src/domain/models"
 	"github.com/paraggarg37/order_app/src/interfaces/config"
+	"github.com/paraggarg37/order_app/src/interfaces/database"
 	"github.com/paraggarg37/order_app/src/usecases/definitions"
 	"log"
 	"net/http"
-	"github.com/paraggarg37/order_app/src/interfaces/database"
 )
 
 var router *httprouter.Router

@@ -1,14 +1,14 @@
 package main
 
 import (
-	"flag"
-	"testing"
-	"os"
-	"log"
-	"github.com/paraggarg37/order_app/src/interfaces/web/api"
-	modles "github.com/paraggarg37/order_app/src/domain/models"
 	"context"
+	"flag"
+	modles "github.com/paraggarg37/order_app/src/domain/models"
+	"github.com/paraggarg37/order_app/src/interfaces/web/api"
+	"log"
+	"os"
 	"sync"
+	"testing"
 )
 
 var integration = flag.Bool("integration", false, "run database integration tests")

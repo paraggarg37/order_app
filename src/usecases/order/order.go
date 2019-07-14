@@ -2,12 +2,12 @@ package order
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	db "github.com/paraggarg37/order_app/src/db_modles"
 	"github.com/paraggarg37/order_app/src/domain/models"
 	"github.com/paraggarg37/order_app/src/domain/repositories"
 	"github.com/paraggarg37/order_app/src/interfaces/distancematrix"
-	"database/sql"
 )
 
 type ordersInteractor struct {
