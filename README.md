@@ -11,6 +11,10 @@ Before you can clone and run this project make sure follwoing things are install
 3. Update User and Password
 4. Run :  `./start.sh` 
 
+## Running TestCases 
+1. Update .env file as stated above
+2. Run : `./run_test.sh` 
+
 ## Running in Docker
 1. Update `${MAPS_API_KEY}` in `docker-compose.yml` with the actual key
 2. cd cmd 
