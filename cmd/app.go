@@ -19,12 +19,18 @@ import (
 )
 
 func main() {
+	oApi := Setup()
+	oApi.RegisterOrder()
+	oApi.Run()
+}
+
+func Setup() *api.API {
 	cfg := config.GetConfig()
 
 	db, err := database.New(cfg.Database, database.DriverMySQL)
 	if err != nil {
 		log.Fatal(err)
-		return
+		return nil
 	}
 
 	orderDao := dao.New(db)
@@ -32,18 +38,19 @@ func main() {
 	dService, err := distancematrix.Init(cfg.DistanceMatrix.Url, cfg.DistanceMatrix.ApiKey)
 	if err != nil {
 		log.Fatal(err)
-		return
+		return nil
 	}
-	oApi := getAPI(cfg, dService, orderDao)
-	oApi.RegisterOrder()
-	oApi.Run()
+	oApi := getAPI(cfg, dService, orderDao, db)
+
+	return oApi
 }
 
-func getAPI(cfg *config.MainConfig, distanceService distancematrix.DistanceService, repo repositories.OrderRepository) *api.API {
+func getAPI(cfg *config.MainConfig, distanceService distancematrix.DistanceService, repo repositories.OrderRepository, db database.DBRepository) *api.API {
 	return api.New(&api.API{
 		Cfg: cfg,
 		Interactor: &api.Interactor{
 			OrderInteractor: order.Init(distanceService, repo),
 		},
+		DB: db,
 	})
 }

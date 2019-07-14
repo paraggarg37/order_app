@@ -15,13 +15,13 @@ type MainConfig struct {
 func GetConfig() *MainConfig {
 	return &MainConfig{
 		Database: database.DBConfig{
-			MasterDSN: os.Getenv("master_db"),
-			SlaveDSN:  os.Getenv("slave_db"),
+			MasterDSN: os.Getenv("MASTER_DB"),
+			SlaveDSN:  os.Getenv("SLAVE_DB"),
 		},
 		DefaultTimeout: 30,
 		DistanceMatrix: distancematrix.DistanceConfig{
 			Url:    "https://maps.googleapis.com",
-			ApiKey: os.Getenv("maps_api_key"),
+			ApiKey: os.Getenv("MAPS_API_KEY"),
 		},
 	}
 }

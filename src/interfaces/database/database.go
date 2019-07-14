@@ -5,7 +5,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"log"
-	"time"
 )
 
 type DBRepository interface {
@@ -14,6 +13,7 @@ type DBRepository interface {
 	GetTransaction(ctx context.Context) (*sqlx.Tx, error)
 	CommitTransaction(dbTx *sqlx.Tx) error
 	RollbackTransaction(dbTx *sqlx.Tx) error
+	Close()
 }
 
 const (
@@ -32,19 +32,16 @@ type DBConfig struct {
 
 //DB configuration
 type DB struct {
-	DBConnection  *sqlx.DB
-	DBString      string
-	RetryInterval int
-	MaxIdleConn   int
-	MaxConn       int
-	doneChannel   chan bool
+	DBConnection *sqlx.DB
+	DBString     string
+	MaxIdleConn  int
+	MaxConn      int
 }
 
 //Db object
 var (
-	Master   *DB
-	Slave    *DB
-	dbTicker *time.Ticker
+	Master *DB
+	Slave  *DB
 )
 
 type Store struct {
@@ -69,30 +66,24 @@ func New(cfg DBConfig, dbDriver string) (*Store, error) {
 	slaveDSN := cfg.SlaveDSN
 
 	Master = &DB{
-		DBString:      masterDSN,
-		RetryInterval: 10,
-		MaxIdleConn:   10,
-		MaxConn:       200,
-		doneChannel:   make(chan bool),
+		DBString:    masterDSN,
+		MaxIdleConn: 10,
+		MaxConn:     200,
 	}
 
-	err := Master.ConnectAndMonitor(dbDriver)
+	err := Master.ConnectAndMonitor(dbDriver, "master")
 	if err != nil {
 		return &Store{}, err
 	}
 	Slave = &DB{
-		DBString:      slaveDSN,
-		RetryInterval: 10,
-		MaxIdleConn:   10,
-		MaxConn:       200,
-		doneChannel:   make(chan bool),
+		DBString:    slaveDSN,
+		MaxIdleConn: 10,
+		MaxConn:     200,
 	}
-	err = Slave.ConnectAndMonitor(dbDriver)
+	err = Slave.ConnectAndMonitor(dbDriver, "slave")
 	if err != nil {
 		return &Store{}, err
 	}
-
-	dbTicker = time.NewTicker(time.Second * 2)
 
 	return &Store{Master: Master.DBConnection, Slave: Slave.DBConnection}, nil
 }
@@ -121,35 +112,16 @@ func (d *DB) Connect(driver string) error {
 }
 
 // ConnectAndMonitor to database
-func (d *DB) ConnectAndMonitor(driver string) error {
+func (d *DB) ConnectAndMonitor(driver string, name string) error {
 	err := d.Connect(driver)
 
 	if err != nil {
-		log.Printf("Not connected to database %s, trying", d.DBString)
+		log.Printf("Not connected to database %s, name %s", d.DBString, name)
 		return err
 	} else {
-		log.Printf("Success connecting to database %s", d.DBString)
+		log.Printf("Success connecting to database %s name %s", d.DBString, name)
 	}
 
-	ticker := time.NewTicker(time.Duration(d.RetryInterval) * time.Second)
-	go func() error {
-		for {
-			select {
-			case <-ticker.C:
-				if d.DBConnection == nil {
-					d.Connect(driver)
-				} else {
-					err := d.DBConnection.Ping()
-					if err != nil {
-						log.Println("[Error]: DB reconnect error", err.Error())
-						return err
-					}
-				}
-			case <-d.doneChannel:
-				return nil
-			}
-		}
-	}()
 	return nil
 }
 
@@ -163,4 +135,9 @@ func (dbStore *Store) CommitTransaction(dbTx *sqlx.Tx) error {
 
 func (dbStore *Store) RollbackTransaction(dbTx *sqlx.Tx) error {
 	return dbTx.Rollback()
+}
+
+func (dbStore *Store) Close() {
+	dbStore.Master.Close()
+	dbStore.Slave.Close()
 }

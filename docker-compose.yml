@@ -1,0 +1,25 @@
+version: '2.1'
+services:
+  db:
+    build:
+      context: ./files/database
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    container_name: mysql_db
+    tty: true
+    healthcheck:
+          test:  mysql --user=root --password=password -e 'show databases;'
+  app:
+    build:
+      context: .
+    environment:
+          MASTER_DB: root:password@tcp(mysql_db:3306)/logistics?parseTime=true&loc=Local
+          SLAVE_DB:  root:password@tcp(mysql_db:3306)/logistics?parseTime=true&loc=Local
+          MAPS_API_KEY: ${MAPS_KEY}
+    container_name: logistics_app
+    ports:
+      - "8080:8080"
+    tty: true
+    depends_on:
+       db:
+        condition: service_healthy

@@ -8,12 +8,16 @@ import (
 )
 
 type DistanceMatrix struct {
-	Client *maps.Client
+	Client DistanceMatrixCalculater
 }
 
 type DistanceConfig struct {
 	Url    string
 	ApiKey string
+}
+
+type DistanceMatrixCalculater interface {
+	DistanceMatrix(ctx context.Context, r *maps.DistanceMatrixRequest) (*maps.DistanceMatrixResponse, error)
 }
 
 type DistanceService interface {

@@ -8,6 +8,7 @@ import (
 	"github.com/paraggarg37/order_app/src/usecases/definitions"
 	"log"
 	"net/http"
+	"github.com/paraggarg37/order_app/src/interfaces/database"
 )
 
 var router *httprouter.Router
@@ -19,10 +20,11 @@ type Interactor struct {
 type API struct {
 	Cfg        *config.MainConfig
 	Interactor *Interactor
+	DB         database.DBRepository
 }
 
 func New(this *API) *API {
-	return &API{Cfg: this.Cfg, Interactor: this.Interactor}
+	return &API{Cfg: this.Cfg, Interactor: this.Interactor, DB: this.DB}
 }
 
 func init() {

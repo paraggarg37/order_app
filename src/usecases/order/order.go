@@ -7,6 +7,7 @@ import (
 	"github.com/paraggarg37/order_app/src/domain/models"
 	"github.com/paraggarg37/order_app/src/domain/repositories"
 	"github.com/paraggarg37/order_app/src/interfaces/distancematrix"
+	"database/sql"
 )
 
 type ordersInteractor struct {
@@ -62,6 +63,9 @@ func (o *ordersInteractor) TakeOrder(ctx context.Context, req *models.TakeOrderR
 	order, err := o.OrderRepo.GetOrderForUpdate(ctx, id, tx)
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("order id not found")
+		}
 		return nil, err
 	}
 
